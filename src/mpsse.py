@@ -396,6 +396,15 @@ class MPSSE(object):
 		"""
 		return _mpsse.ReadPins(self.context)
 
+
+	def ReadGpio(self, port):
+		"""
+		Reads the current state of the chip's pins.
+
+		Returns an integer with the corresponding pin's bits set.
+		"""
+		return _mpsse.ReadGpio(self.context, port)
+
 	def PinState(self, pin, state=-1):
 		"""
 		Checks the current state of the pins.

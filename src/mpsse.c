@@ -372,9 +372,11 @@ int SetMode(struct mpsse_context *mpsse, int endianess)
 			set_bits_low(mpsse, mpsse->pidle);
 	
 			/* All GPIO pins are outputs, set low */
-			mpsse->trish = 0xFF;
+			//mpsse->trish = 0xFF; 				
+			//mpsse->gpioh = 0x00;
+			mpsse->trish = 0xFA;
 			mpsse->gpioh = 0x00;
-	
+
 	                buf[i++] = SET_BITS_HIGH;
 	                buf[i++] = mpsse->gpioh;
 	                buf[i++] = mpsse->trish;
@@ -1205,6 +1207,34 @@ int ReadPins(struct mpsse_context *mpsse)
 	if(is_valid_context(mpsse))
 	{
 		ftdi_read_pins((struct ftdi_context *) &mpsse->ftdi, (unsigned char *) &val);
+	}
+
+	return (int) val;
+}
+
+/*
+ * Reads the state of the chip's pins.
+ *
+ * @mpsse - MPSSE context pointer.
+ * @port   - 0 for the low bits and 1 for the high bits
+ *
+ * Returns a byte with the corresponding pin's bits set to 1 or 0.
+ */
+int ReadGpio(struct mpsse_context *mpsse, int port)
+{
+	unsigned char buf[1] = { 0 };
+	unsigned char val = 0 ;
+	int retval = MPSSE_OK;
+	if (port == 0) {
+		buf[0] = GET_BITS_LOW;
+	} else {
+		buf[0] = GET_BITS_HIGH;
+	}
+
+	if(is_valid_context(mpsse))
+	{
+		retval = raw_write(mpsse, buf, 1);
+		retval = raw_read(mpsse, &val, 1);
 	}
 
 	return (int) val;

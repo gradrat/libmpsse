@@ -202,6 +202,7 @@ int WriteBits(struct mpsse_context *mpsse, char bits, int size);
 char ReadBits(struct mpsse_context *mpsse, int size);
 int WritePins(struct mpsse_context *mpsse, uint8_t data);
 int ReadPins(struct mpsse_context *mpsse);
+int ReadGpio(struct mpsse_context *mpsse, int port);
 int PinState(struct mpsse_context *mpsse, int pin, int state);
 int Tristate(struct mpsse_context *mpsse);
 char Version(void);
