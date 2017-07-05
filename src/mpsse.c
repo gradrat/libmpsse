@@ -863,7 +863,6 @@ char *I2C_Read(struct mpsse_context *mpsse, int size, char dev_address, char i2c
 	int i = 0;
 	write_i2c_address = i2c_address<<1;
 	read_i2c_address =  write_i2c_address + 1;
-	buf = InternalRead(mpsse, size);
 	Start(mpsse);					// start condition
 	Write(mpsse,&write_i2c_address,1); // chip address + W bit
 	Write(mpsse,&dev_address,1);  		// register address to read data from
