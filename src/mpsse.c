@@ -886,6 +886,8 @@ char *I2C_Read(struct mpsse_context *mpsse, int size, char dev_address, char i2c
 		}
 		buf[size-1] = buf3[0];
 	}
+	SendAcks(mpsse); 			// if size is bigger than 1, send ACKs for the first size-1 bytes
+	Stop(mpsse) ;
 
 #ifdef SWIGPYTHON
 	swig_string_data sdata = { 0 };
