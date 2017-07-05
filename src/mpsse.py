@@ -261,6 +261,18 @@ class MPSSE(object):
 		"""
 		return _mpsse.Read(self.context, size)
 
+	def I2C_Read(self, size, dev_address, i2c_address)
+		"""
+		Reads bytes over the I2c.
+
+		@size - Number of bytes to read.
+		@dev_address - Register address to read from
+		@i2c_address - Chip address 7 bit
+
+		Returns a string of size bytes.
+		"""
+		return _mpsse.I2C_Read(self.context, size, dev_address, i2c_address)
+
 	def Transfer(self, data):
 		"""
 		Transfers data over the selected serial protocol.

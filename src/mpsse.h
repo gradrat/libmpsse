@@ -218,6 +218,7 @@ swig_string_data Read(struct mpsse_context *mpsse, int size);
 swig_string_data Transfer(struct mpsse_context *mpsse, char *data, int size);
 #else
 char *Read(struct mpsse_context *mpsse, int size);
+char *I2C_Read(struct mpsse_context *mpsse, int size, char dev_address, char i2c_address);
 char *Transfer(struct mpsse_context *mpsse, char *data, int size);
 
 unsigned char fast_rw_buf[SPI_RW_SIZE + CMD_SIZE];
