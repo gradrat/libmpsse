@@ -261,7 +261,7 @@ class MPSSE(object):
 		"""
 		return _mpsse.Read(self.context, size)
 
-	def I2C_Read(self, size, dev_address, i2c_address)
+	def I2C_Read(self, size, dev_address, i2c_address) :
 		"""
 		Reads bytes over the I2c.
 
