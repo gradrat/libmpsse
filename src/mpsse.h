@@ -112,6 +112,7 @@ enum i2c_ack
 };
 
 #define DEFAULT_TRIS            (SK | DO | CS | GPIO0 | GPIO1 | GPIO2 | GPIO3)  /* SK/DO/CS and GPIOs are outputs, DI is an input */
+//#define DEFAULT_TRIS            (SK  | DO )  /* SK/DO/CS and GPIOs are outputs, DI is an input */
 #define DEFAULT_PORT            (SK | CS)       				/* SK and CS are high, all others low */
 
 enum mpsse_commands
@@ -201,6 +202,7 @@ int WriteBits(struct mpsse_context *mpsse, char bits, int size);
 char ReadBits(struct mpsse_context *mpsse, int size);
 int WritePins(struct mpsse_context *mpsse, uint8_t data);
 int ReadPins(struct mpsse_context *mpsse);
+int ReadGpio(struct mpsse_context *mpsse, int port);
 int PinState(struct mpsse_context *mpsse, int pin, int state);
 int Tristate(struct mpsse_context *mpsse);
 char Version(void);
@@ -213,9 +215,11 @@ typedef struct swig_string_data
 } swig_string_data;
 
 swig_string_data Read(struct mpsse_context *mpsse, int size);
+swig_string_data I2C_Read(struct mpsse_context *mpsse, int size, char dev_address, char i2c_address);
 swig_string_data Transfer(struct mpsse_context *mpsse, char *data, int size);
 #else
 char *Read(struct mpsse_context *mpsse, int size);
+char *I2C_Read(struct mpsse_context *mpsse, int size, char dev_address, char i2c_address);
 char *Transfer(struct mpsse_context *mpsse, char *data, int size);
 
 unsigned char fast_rw_buf[SPI_RW_SIZE + CMD_SIZE];

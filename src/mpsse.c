@@ -372,9 +372,11 @@ int SetMode(struct mpsse_context *mpsse, int endianess)
 			set_bits_low(mpsse, mpsse->pidle);
 	
 			/* All GPIO pins are outputs, set low */
-			mpsse->trish = 0xFF;
+			//mpsse->trish = 0xFF; 				
+			//mpsse->gpioh = 0x00;
+			mpsse->trish = 0xFA;
 			mpsse->gpioh = 0x00;
-	
+
 	                buf[i++] = SET_BITS_HIGH;
 	                buf[i++] = mpsse->gpioh;
 	                buf[i++] = mpsse->trish;
@@ -839,6 +841,65 @@ char *InternalRead(struct mpsse_context *mpsse, int size)
 }
 
 /*
+ * Reads data over I2C protocol.
+ * 
+ * @mpsse - MPSSE context pointer.
+ * @size  - Number of bytes to read.
+ *
+ * Returns a pointer to the read data on success.
+ * Returns NULL on failure.
+ */
+#ifdef SWIGPYTHON
+swig_string_data I2C_Read(struct mpsse_context *mpsse, int size, char dev_address, char i2c_address)
+#else
+char *I2C_Read(struct mpsse_context *mpsse, int size, char dev_address, char i2c_address)
+#endif
+{
+	char *buf = NULL;
+	char *buf2 = NULL; 				// only needed if size > 1
+	char *buf3 = NULL; 				// only needed if size > 1
+	char write_i2c_address = 0;
+	char read_i2c_address = 0;
+	int i = 0;
+	write_i2c_address = i2c_address<<1;
+	read_i2c_address =  write_i2c_address + 1;
+	Start(mpsse);					// start condition
+	Write(mpsse,&write_i2c_address,1); // chip address + W bit
+	Write(mpsse,&dev_address,1);  		// register address to read data from
+	Start(mpsse) ; 					// repated start
+	Write(mpsse,&read_i2c_address,1);   // chip address + R bit
+	if (size > 1 ) 
+	{
+		SendAcks(mpsse); 			// if size is bigger than 1, send ACKs for the first size-1 bytes
+		buf2 = InternalRead(mpsse,size-1);
+	} 
+	SendNacks(mpsse); 				// Make sure to send a NACK after the final byte
+	buf = InternalRead(mpsse,1);
+	if (size > 1 ) 
+	{
+		buf3 = buf;
+		buf = malloc(size);
+		for (i = 0; i < size-1; i++)
+		{
+			buf[i] = buf2[i];
+		}
+		buf[size-1] = buf3[0];
+	}
+	SendAcks(mpsse); 			// if size is bigger than 1, send ACKs for the first size-1 bytes
+	Stop(mpsse) ;
+
+#ifdef SWIGPYTHON
+	swig_string_data sdata = { 0 };
+	sdata.size = size;
+	sdata.data = buf;
+	return sdata;
+#else
+	return buf;
+#endif
+}
+
+
+/*
  * Reads data over the selected serial protocol.
  * 
  * @mpsse - MPSSE context pointer.
@@ -1205,6 +1266,34 @@ int ReadPins(struct mpsse_context *mpsse)
 	if(is_valid_context(mpsse))
 	{
 		ftdi_read_pins((struct ftdi_context *) &mpsse->ftdi, (unsigned char *) &val);
+	}
+
+	return (int) val;
+}
+
+/*
+ * Reads the state of the chip's pins.
+ *
+ * @mpsse - MPSSE context pointer.
+ * @port   - 0 for the low bits and 1 for the high bits
+ *
+ * Returns a byte with the corresponding pin's bits set to 1 or 0.
+ */
+int ReadGpio(struct mpsse_context *mpsse, int port)
+{
+	unsigned char buf[1] = { 0 };
+	unsigned char val = 0 ;
+	int retval = MPSSE_OK;
+	if (port == 0) {
+		buf[0] = GET_BITS_LOW;
+	} else {
+		buf[0] = GET_BITS_HIGH;
+	}
+
+	if(is_valid_context(mpsse))
+	{
+		retval = raw_write(mpsse, buf, 1);
+		retval = raw_read(mpsse, &val, 1);
 	}
 
 	return (int) val;
